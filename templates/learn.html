@@ -1,0 +1,134 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<div class="learn-container">
+    <div class="learn-hero">
+        <div class="hero-overlay">
+            <h1>Aerial Intelligence Academy</h1>
+            <p>Master the mechanics of Orientation-Aware AI and Rotated Bounding Boxes (OBB).</p>
+            <div class="search-wrapper">
+                <input type="text" id="learnSearch" placeholder="Search concepts (e.g., IoU, Theta, NMS, YOLOv8)...">
+            </div>
+        </div>
+    </div>
+
+    <div class="learn-grid">
+        <a href="#obb" class="learn-card">
+            <div class="card-icon">📐</div>
+            <h3>HBB vs OBB</h3>
+            <p>Why standard horizontal boxes fail in aerial perspectives.</p>
+        </a>
+        <a href="#math" class="learn-card">
+            <div class="card-icon">🔢</div>
+            <h3>The 5-Parameter Math</h3>
+            <p>Decoding the [x, y, w, h, θ] prediction vector.</p>
+        </a>
+        <a href="#iou" class="learn-card">
+            <div class="card-icon">🔄</div>
+            <h3>Rotated IoU</h3>
+            <p>Measuring accuracy for tilted objects using polygons.</p>
+        </a>
+        <a href="#challenges" class="learn-card">
+            <div class="card-icon">🛰️</div>
+            <h3>Aerial Challenges</h3>
+            <p>Handling scale variation and small object vanishing.</p>
+        </a>
+    </div>
+
+    <div class="content-wrapper">
+        
+        <section id="obb" class="learn-section concept">
+            <div class="section-badge">CORE CONCEPT</div>
+            <h2>Horizontal (HBB) vs. Oriented (OBB)</h2>
+            <p>
+                Traditional object detection uses <b>Horizontal Bounding Boxes (HBB)</b>. While effective for street-level images, they struggle with the arbitrary angles found in drone imagery.
+            </p>
+            
+            [Image of Horizontal vs Oriented Bounding Boxes on a diagonal ship]
+
+            <div class="info-grid">
+                <div class="info-box">
+                    <h4>Background Contamination</h4>
+                    <p>HBBs capture significant background noise like water or grass, which "contaminates" the model's feature extraction.</p>
+                </div>
+                <div class="info-box">
+                    <h4>NMS Conflict</h4>
+                    <p>In dense scenes, overlapping horizontal boxes cause Non-Maximum Suppression (NMS) to accidentally delete valid detections.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="math" class="learn-section concept">
+            <div class="section-badge">TECHNICAL SPECS</div>
+            <h2>The 5-Parameter Prediction Model</h2>
+            <p>Standard detectors use 4 values. Our orientation-aware model predicts a 5th parameter: <b>Theta (θ)</b>.</p>
+            
+            [Image of Oriented Bounding Box geometry showing x, y, width, height, and rotation angle theta]
+            
+            <ul class="spec-list">
+                <li><b>x, y:</b> The precise center coordinates of the object.</li>
+                <li><b>w, h:</b> Width and height aligned to the object's axis, not the image axis.</li>
+                <li><b>θ (Theta):</b> The rotation angle, allowing the box to "tilt" for a perfect fit.</li>
+            </ul>
+        </section>
+
+        <section id="iou" class="learn-section concept">
+            <div class="section-badge">METRICS</div>
+            <h2>Rotated Intersection over Union (RIoU)</h2>
+            <p>
+                Accuracy is measured by the overlap between the prediction and the ground truth. In OBB detection, we treat boxes as <b>polygons</b>.
+            </p>
+            <p>
+                <b>Rotated IoU</b> calculates the intersection area of two rotated rectangles. This ensures that even a location-perfect box is penalized if its angle is slightly off, forcing high precision.
+            </p>
+        </section>
+
+        <section id="challenges" class="learn-section concept">
+            <div class="section-badge">DATASETS & LIMITS</div>
+            <h2>Aerial Challenges</h2>
+            <p>Detecting objects from high altitudes introduces unique data problems:</p>
+            <div class="challenge-list">
+                <div class="challenge-item">
+                    <b>Scale Variation:</b> Images can contain a 10px car and a 500px bridge; we use Feature Pyramid Networks (FPN) to detect both.
+                </div>
+                <div class="challenge-item">
+                    <b>Perspective Ambiguity:</b> Objects look different from above. Models must learn "top-down" visual signatures rather than typical profiles.
+                </div>
+            </div>
+        </section>
+
+        <section class="learn-section">
+            <h2>Frequently Asked Questions</h2>
+            <div class="faq-container">
+                <div class="faq-item">
+                    <button class="faq-q">Why is the processing time longer for OBB?</button>
+                    <div class="faq-a">Predicting the extra rotation parameter and calculating Rotated IoU requires more complex mathematical regressions.</div>
+                </div>
+                <div class="faq-item">
+                    <button class="faq-q">Which datasets are best for training?</button>
+                    <div class="faq-a"><b>DOTA</b> is best for multi-class aerial detection, while <b>HRSC2016</b> is the gold standard for maritime detection.</div>
+                </div>
+            </div>
+        </section>
+    </div>
+</div>
+
+<script>
+/* SEARCH FILTER */
+document.getElementById("learnSearch").addEventListener("keyup", function(){
+    let val = this.value.toLowerCase();
+    document.querySelectorAll(".concept").forEach(sec=>{
+        sec.style.display = sec.innerText.toLowerCase().includes(val) ? "block" : "none";
+    });
+});
+
+/* FAQ ACCORDION */
+document.querySelectorAll(".faq-q").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+        const answer = btn.nextElementSibling;
+        answer.classList.toggle("show");
+    });
+});
+</script>
+
+{% endblock %}

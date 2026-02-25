@@ -1,0 +1,142 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<div class="detect-layout">
+
+    <!-- LEFT PANEL -->
+    <div class="control-panel">
+
+        <h1>Detection Workspace</h1>
+
+        <form method="POST" enctype="multipart/form-data">
+
+            <label class="section-title">Upload Aerial Images</label>
+            <input type="file" name="image" multiple required class="file-input">
+
+            <label class="section-title">Confidence Threshold</label>
+            <input type="range" name="conf" min="0.1" max="1" step="0.05" value="0.25"
+                   oninput="confValue.innerText=this.value" class="slider">
+            <div class="slider-value">Confidence: <b id="confValue">0.25</b></div>
+            <div class="slider-help">
+Lower value → more detections | Higher value → stricter filtering
+</div>
+
+            <label class="section-title">Detection Mode</label>
+            <select name="mode" class="dropdown">
+                <option value="standard">Standard YOLOv8</option>
+                <option value="oriented">Orientation-Aware YOLO</option>
+            </select>
+
+            <button type="submit" class="run-btn">Run Detection</button>
+
+        </form>
+
+    </div>
+
+
+    <!-- RIGHT PANEL -->
+    <div class="viewer-panel">
+
+        {% if not uploaded_images %}
+
+    <!-- EMPTY STATE -->
+    <div class="empty-state">
+
+    <div class="empty-content">
+
+        <img src="{{ url_for('static', filename='ui/upload.svg') }}" class="empty-illustration">
+
+        <h2>UPLOAD IMAGE </h2>
+        <p>Upload aerial or satellite imagery to begin detection.</p>
+
+        <div class="formats">
+            JPG · PNG · TIFF · Drone & Satellite imagery supported
+        </div>
+
+    </div>
+
+</div>
+
+        {% else %}
+
+        <!-- RESULTS -->
+        <h1 class="viewer-title">Detection Results</h1>
+
+        <div class="grid-view">
+
+            {% for i in range(uploaded_images|length) %}
+            <div class="compare-card">
+
+                <div class="img-box">
+    <h3>Input</h3>
+    <div class="zoom-container">
+        <img class="zoom-image" src="{{ url_for('static', filename=uploaded_images[i]) }}">
+        <div class="zoom-lens"></div>
+    </div>
+</div>
+
+<div class="img-box">
+    <h3>Output</h3>
+    <div class="zoom-container">
+        <img class="zoom-image" src="{{ url_for('static', filename=result_images[i]) }}">
+        <div class="zoom-lens"></div>
+    </div>
+</div>
+
+
+            </div>
+            {% endfor %}
+
+        </div>
+
+
+        <!-- PERFORMANCE TABLE -->
+        {% if stats %}
+        <div class="results-section">
+
+            <h2>Detection Performance Summary</h2>
+
+            <table class="perf-table">
+                <thead>
+                    <tr>
+                        <th>Image</th>
+                        <th>Resolution</th>
+                        <th>Objects</th>
+                        <th>Density</th>
+                        <th>Time (ms)</th>
+                        <th>FPS</th>
+                        <th>Model</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for row in stats %}
+                    <tr>
+                        <td>{{ row.name }}</td>
+                        <td>{{ row.size }}</td>
+                        <td>{{ row.objects }}</td>
+                        <td>{{ row.density }}</td>
+                        <td>{{ row.time }}</td>
+                        <td>{{ row.fps }}</td>
+                        <td>{{ row.model }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <div class="summary-box">
+                <p><b>Average Time:</b> {{ avg_time }} ms</p>
+                <p><b>Average Objects:</b> {{ avg_objects }}</p>
+                <p><b>Estimated FPS:</b> {{ avg_fps }}</p>
+            </div>
+
+        </div>
+        {% endif %}
+
+        {% endif %}
+
+    </div>
+
+</div>
+
+{% endblock %}

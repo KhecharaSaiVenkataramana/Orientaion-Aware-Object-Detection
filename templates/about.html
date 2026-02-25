@@ -1,0 +1,112 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<div class="page-header">
+    <h1>About the Project</h1>
+    <p>Orientation-Aware Aerial Object Detection Platform</p>
+</div>
+
+
+<!-- OVERVIEW -->
+<div class="card">
+    <h2>Overview</h2>
+    <p>
+        This project is an AI-powered web platform designed to detect objects
+        in aerial and satellite imagery. Traditional object detection struggles
+        when objects appear rotated. This system improves detection accuracy by
+        predicting object orientation along with location.
+    </p>
+</div>
+
+
+<!-- PROBLEM -->
+<div class="card">
+    <h2>Problem Statement</h2>
+    <p>
+        In drone and satellite images, objects such as vehicles, ships and buildings
+        appear at arbitrary angles. Horizontal bounding boxes capture large background
+        areas which reduces confidence and localization accuracy.
+    </p>
+</div>
+
+
+<!-- SOLUTION -->
+<div class="card">
+    <h2>Our Solution</h2>
+    <p>
+        We use Orientation-Aware YOLOv8 which predicts an additional rotation angle (θ)
+        for every detected object. This allows tight bounding boxes and improves detection
+        in dense aerial scenes.
+    </p>
+</div>
+
+
+<!-- WORKFLOW -->
+<div class="card">
+    <h2>System Workflow</h2>
+    <p>
+The system processes aerial images and outputs oriented bounding boxes
+along with performance metrics such as detection time and FPS.
+</p>
+</div>
+
+
+<!-- FEATURES -->
+<div class="card">
+    <h2>Key Features</h2>
+    <ul>
+        <li>Rotated bounding box detection</li>
+        <li>Confidence threshold control</li>
+        <li>Performance analytics (FPS, latency, density)</li>
+        <li>Input vs Output comparison</li>
+        <li>Web-based interactive interface</li>
+    </ul>
+</div>
+
+<div class="card">
+    <h2>What Makes It Different?</h2>
+    <ul>
+        <li>Predicts orientation angle of objects</li>
+        <li>Uses rotated IoU for accurate localization</li>
+        <li>Designed specifically for aerial imagery</li>
+    </ul>
+</div>
+
+<!-- TECHNOLOGIES -->
+<div class="card">
+    <h2>Technologies Used</h2>
+    <ul>
+        <li>Python & Flask</li>
+        <li>YOLOv8 Deep Learning Model</li>
+        <li>OpenCV & NumPy</li>
+        <li>HTML, CSS, JavaScript</li>
+    </ul>
+</div>
+
+
+<!-- APPLICATIONS -->
+<div class="card">
+    <h2>Applications</h2>
+    <ul>
+        <li>Traffic monitoring</li>
+        <li>Ship tracking</li>
+        <li>Defense surveillance</li>
+        <li>Disaster assessment</li>
+        <li>Urban planning</li>
+    </ul>
+</div>
+
+
+<!-- FUTURE WORK -->
+<div class="card">
+    <h2>Future Improvements</h2>
+    <ul>
+        <li>Train custom orientation-aware model</li>
+        <li>Real-time video detection</li>
+        <li>Heatmap visualization</li>
+        <li>Cloud deployment</li>
+        <li>Multi-class analytics dashboard</li>
+    </ul>
+</div>
+
+{% endblock %}

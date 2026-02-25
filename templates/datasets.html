@@ -1,0 +1,77 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<div class="page-header">
+    <h1>Aerial Detection Datasets</h1>
+    <p>Datasets used for training and evaluation</p>
+</div>
+
+<div class="card">
+    <h2>Why These Datasets?</h2>
+    <p>
+    These datasets provide rotated bounding box annotations required
+    to train and evaluate orientation-aware object detection models.
+    </p>
+</div>
+
+<!-- ================= DOTA ================= -->
+<div class="dataset-card">
+
+    <div class="dataset-img">
+        <img src="{{ url_for('static', filename='ui/DOTA.png') }}">
+    </div>
+
+    <div class="dataset-info">
+        <h2>DOTA Dataset</h2>
+        <p>
+            A large-scale dataset for object detection in aerial images.
+            Contains objects at arbitrary orientations like planes, ships,
+            vehicles and buildings.
+        </p>
+
+        <div class="dataset-specs">
+            <div><b>Images:</b> 2806</div>
+            <div><b>Classes:</b> 15</div>
+            <div><b>Annotations:</b> Rotated Bounding Boxes</div>
+            <div><b>Domain:</b> Satellite & Drone Imagery</div>
+        </div>
+
+        <div class="dataset-buttons">
+            <a href="https://captain-whu.github.io/DOTA/" target="_blank" class="btn-primary">Website</a>
+            <a href="https://arxiv.org/abs/1711.10398" target="_blank" class="btn-secondary">Paper</a>
+        </div>
+    </div>
+
+</div>
+
+
+<!-- ================= HRSC ================= -->
+<div class="dataset-card">
+
+    <div class="dataset-img">
+        <img src="{{ url_for('static', filename='ui/HRSC.png') }}">
+    </div>
+
+    <div class="dataset-info">
+        <h2>HRSC2016</h2>
+        <p>
+            High resolution ship detection dataset focusing on orientation-aware
+            bounding boxes for maritime surveillance tasks.
+        </p>
+
+        <div class="dataset-specs">
+            <div><b>Images:</b> 1061</div>
+            <div><b>Classes:</b> Ship</div>
+            <div><b>Annotations:</b> Rotated Bounding Boxes</div>
+            <div><b>Domain:</b> Maritime Monitoring</div>
+        </div>
+
+        <div class="dataset-buttons">
+            <a href="https://www.kaggle.com/datasets/guofeng/hrsc2016" target="_blank" class="btn-primary">Download</a>
+            <a href="https://arxiv.org/abs/1702.06216" target="_blank" class="btn-secondary">Paper</a>
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}

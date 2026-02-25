@@ -1,0 +1,51 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<div class="hero">
+    <div class="hero-text">
+        <h1>Orientation-Aware Aerial Intelligence Platform</h1>
+        <p>
+            Detect rotated objects in aerial imagery using an orientation-aware YOLOv8 detector.
+    Explore concepts, learn usage, and analyze detection performance.
+        </p>
+
+        <div class="hero-buttons">
+            <a href="/detection" class="btn-primary">Run Detection</a>
+            <a href="/learn" class="btn-secondary">Learn More</a>
+        </div>
+    </div>
+</div>
+
+<section class="features">
+
+<div class="feature-card">
+    <h3>Object Detection</h3>
+    <p>Try Detection Tool</p>
+    <a href="/detection">Open Tool →</a>
+</div>
+
+<div class="feature-card">
+    <h3>Datasets</h3>
+    <p>Training Data</p>
+    <a href="/datasets">Explore →</a>
+</div>
+
+<div class="feature-card">
+    <h3>Learning Center</h3>
+    <p>Understand rotated bounding box detection.</p>
+    <a href="/learn">Concepts</a>
+</div>
+
+<div class="feature-card">
+    <h3>Applications</h3>
+    <p>About Project</p>
+    <a href="/about">View →</a>
+</div>
+
+<p class="hero-hint">
+New here? Start with Tutorials → then try the Detection tool.
+</p>
+
+</section>
+
+{% endblock %}

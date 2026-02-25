@@ -1,0 +1,148 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<div class="page-header">
+    <h1>Using the Detection Tool</h1>
+    <p>Follow this step-by-step guide to run aerial object detection</p>
+</div>
+
+<div class="tutorial-note">
+This page explains how to use the tool. For understanding how detection works, visit the Learn page.
+</div>
+
+<div class="tutorial-container">
+
+<!-- STEP 1 -->
+<div class="tutorial-step">
+    <div class="step-number">1</div>
+
+    <div class="step-content">
+        <h2>Upload Image</h2>
+        <p>
+            Upload a drone or satellite image. Supported formats include JPG, PNG and TIFF.
+            Higher resolution images provide better detection accuracy.
+        </p>
+
+        <div class="tutorial-img">
+            <img src="{{ url_for('static', filename='tutorials/upload.png') }}">
+        </div>
+
+        <div class="tip">
+            Tip: Clear aerial images with visible objects work best.
+        </div>
+    </div>
+</div>
+
+
+<!-- STEP 2 -->
+<div class="tutorial-step">
+    <div class="step-number">2</div>
+
+    <div class="step-content">
+        <h2>Adjust Confidence Threshold</h2>
+        <p>
+            The confidence slider controls how certain the model must be before showing detections.
+        </p>
+
+        <ul>
+            <li>Low value → more detections (may include false positives)</li>
+            <li>High value → fewer but accurate detections</li>
+        </ul>
+
+        <div class="tutorial-img">
+            <img src="{{ url_for('static', filename='tutorials/confidence.png') }}">
+        </div>
+    </div>
+</div>
+
+
+<!-- STEP 3 -->
+<div class="tutorial-step">
+    <div class="step-number">3</div>
+
+    <div class="step-content">
+        <h2>Select Detection Mode</h2>
+        <p>
+            Choose between standard detection and orientation-aware detection.
+        </p>
+
+        <ul>
+            <li><b>Standard:</b> Horizontal boxes</li>
+            <li><b>Orientation-Aware:</b> Rotated boxes (recommended for aerial images)</li>
+        </ul>
+
+        <div class="tutorial-img">
+            <img src="{{ url_for('static', filename='tutorials/mode.png') }}">
+        </div>
+    </div>
+</div>
+
+
+<!-- STEP 4 -->
+<div class="tutorial-step">
+    <div class="step-number">4</div>
+
+    <div class="step-content">
+        <h2>Run Detection</h2>
+        <p>
+            Click the Run Detection button. The model processes the image and predicts objects.
+        </p>
+
+        <div class="tutorial-img">
+            <img src="{{ url_for('static', filename='tutorials/run.png') }}">
+        </div>
+
+        <div class="warning">
+            Processing time depends on image resolution and GPU availability.
+        </div>
+    </div>
+</div>
+
+
+<!-- STEP 5 -->
+<div class="tutorial-step">
+    <div class="step-number">5</div>
+
+    <div class="step-content">
+        <h2>Analyze Results</h2>
+        <p>
+            The system displays input vs output images along with performance metrics.
+        </p>
+
+        <ul>
+            <li>Detected objects</li>
+            <li>Inference time</li>
+            <li>FPS</li>
+            <li>Density</li>
+        </ul>
+
+        <div class="tutorial-img">
+            <img src="{{ url_for('static', filename='tutorials/results.png') }}">
+        </div>
+    </div>
+</div>
+
+<!-- STEP 6 -->
+<div class="tutorial-step">
+    <div class="step-number">6</div>
+
+    <div class="step-content">
+        <h2>Interpret Metrics</h2>
+        <p>The performance table shows:</p>
+
+        <ul>
+            <li><b>Objects:</b> number of detected items</li>
+            <li><b>Density:</b> objects per megapixel</li>
+            <li><b>Time:</b> inference speed</li>
+            <li><b>FPS:</b> processing performance</li>
+        </ul>
+
+        <div class="tip">
+            Higher FPS and lower time indicate faster detection.
+        </div>
+    </div>
+</div>
+
+</div>
+
+{% endblock %}
