@@ -191,19 +191,19 @@ a{
 
 .detect-layout{
     display:grid;
-    grid-template-columns: 380px 1fr;
+    grid-template-columns: 550px 1fr;
     min-height: calc(100vh - 90px);
 }
 
 /* ===== LEFT CONTROL PANEL ===== */
 .control-panel{
     background:#071826;
-    padding:40px 35px;
-    border-right:1px solid rgba(255,255,255,0.06);
+    padding:60px 45px;
+    border-right:4px solid rgba(255,255,255,0.06);
 }
 
 .control-panel h1{
-    font-size:30px;
+    font-size:40px;
     margin-bottom:28px;
     color:#ffffff;
 }
@@ -211,9 +211,9 @@ a{
 /* FORM LABELS */
 .section-title{
     display:block;
-    margin-top:22px;
+    margin-top:25px;
     margin-bottom:8px;
-    font-size:16px;
+    font-size:20px;
     color:#9fb3c8;
 }
 
@@ -226,7 +226,7 @@ a{
     border:1px solid #1c3a55;
     border-radius:10px;
     color:white;
-    font-size:15px;
+    font-size:19px;
 }
 
 /* SLIDER */
@@ -238,7 +238,7 @@ a{
 .slider-value{
     margin-top:6px;
     color:#7dd3fc;
-    font-size:15px;
+    font-size:19px;
 }
 
 /* BUTTON */
@@ -250,7 +250,7 @@ a{
     border:none;
     border-radius:12px;
     color:white;
-    font-size:17px;
+    font-size:19px;
     font-weight:600;
     cursor:pointer;
     transition:0.25s;
@@ -269,7 +269,7 @@ a{
 }
 
 .viewer-title{
-    font-size:34px;
+    font-size:40px;
     margin-bottom:30px;
 }
 /* ===== CLEAN EMPTY STATE ===== */
@@ -304,14 +304,14 @@ a{
 /* subtitle */
 .empty-content p{
     color:#9fb3c8;
-    font-size:20px;
+    font-size:22px;
     margin-bottom:18px;
 }
 .step{
     background:#0b2236;
     padding:8px 12px;
     border-radius:8px;
-    font-size:16px;
+    font-size:18px;
     color:#cbd5e1;
 }
 

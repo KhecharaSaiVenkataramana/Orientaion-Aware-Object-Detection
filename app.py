@@ -10,14 +10,17 @@ import uuid
 
 app = Flask(__name__)
 
+# ---------------- FOLDERS ----------------
 UPLOAD_FOLDER = "static/uploads"
 OUTPUT_FOLDER = "static/outputs"
 
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 
-# Load model once
-model = YOLO("models/yolov8n.pt")
+# ---------------- LOAD MODELS ----------------
+STANDARD_MODEL = YOLO("models/yolov8n.pt")
+DOTA_MODEL = YOLO("models/DOTA_Model.pt")
+HRSC_MODEL = YOLO("models/HRSC_Model.pt")
 
 
 # ---------------- HOME ----------------
@@ -43,11 +46,24 @@ def detection():
         mode = request.form.get("mode", "standard")
         conf = float(request.form.get("conf", 0.25))
 
+        # -------- MODEL SELECTION --------
+        if mode == "dota":
+            model = DOTA_MODEL
+            model_name = "DOTA-OBB"
+
+        elif mode == "hrsc":
+            model = HRSC_MODEL
+            model_name = "HRSC-OBB"
+
+        else:
+            model = STANDARD_MODEL
+            model_name = "Standard YOLOv8"
+
         for file in files:
 
             if file and file.filename != "":
 
-                # Unique naming
+                # Unique file name
                 unique_id = str(uuid.uuid4())[:8]
                 filename = secure_filename(file.filename)
                 name, ext = os.path.splitext(filename)
@@ -58,7 +74,7 @@ def detection():
                 input_path = os.path.join(UPLOAD_FOLDER, input_filename)
                 output_path = os.path.join(OUTPUT_FOLDER, output_filename)
 
-                # Save input image
+                # Save uploaded image
                 file.save(input_path)
                 uploaded_images.append(f"uploads/{input_filename}")
 
@@ -69,7 +85,7 @@ def detection():
                 h, w, _ = img_array.shape
                 pixels = w * h
 
-                # Inference
+                # -------- INFERENCE --------
                 start = time.time()
                 results = model(img_array, conf=conf)
                 end = time.time()
@@ -77,14 +93,24 @@ def detection():
                 inference_time = round((end - start) * 1000, 2)
 
                 result = results[0]
-                objects_detected = len(result.boxes)
 
-                # Save detected image
+                # -------- DETECTION COUNT (WORKS FOR BOTH YOLO + OBB) --------
+                if result.boxes is not None:
+                    objects_detected = len(result.boxes)
+
+                elif hasattr(result, "obb") and result.obb is not None:
+                    objects_detected = len(result.obb)
+
+                else:
+                    objects_detected = 0
+
+                # -------- SAVE OUTPUT IMAGE --------
                 plotted = result.plot()
                 cv2.imwrite(output_path, plotted)
+
                 result_images.append(f"outputs/{output_filename}")
 
-                # Extra performance metrics
+                # -------- PERFORMANCE METRICS --------
                 density = round(objects_detected / (pixels / 1_000_000), 2) if pixels else 0
                 fps = round(1000 / inference_time, 2) if inference_time > 0 else 0
 
@@ -95,13 +121,13 @@ def detection():
                     "density": density,
                     "time": inference_time,
                     "fps": fps,
-                    "model": "Standard YOLOv8" if mode == "standard" else "Orientation-Aware"
+                    "model": model_name
                 })
 
                 total_time += inference_time
                 total_objects += objects_detected
 
-    # Average summary
+    # -------- AVERAGE METRICS --------
     avg_time = round(total_time / len(stats), 2) if stats else 0
     avg_objects = round(total_objects / len(stats), 2) if stats else 0
     avg_fps = round(1000 / avg_time, 2) if avg_time > 0 else 0
@@ -117,27 +143,30 @@ def detection():
     )
 
 
-# ---------------- OTHER PAGES ----------------
+# ---------------- DATASETS ----------------
 @app.route("/datasets")
 def datasets():
     return render_template("datasets.html", title="Datasets")
 
 
+# ---------------- LEARN ----------------
 @app.route("/learn")
 def learn():
     return render_template("learn.html", title="Learn")
 
 
+# ---------------- TUTORIALS ----------------
 @app.route("/tutorials")
 def tutorials():
     return render_template("tutorials.html", title="Tutorials")
 
 
+# ---------------- ABOUT ----------------
 @app.route("/about")
 def about():
     return render_template("about.html", title="About")
 
 
-# ---------------- RUN ----------------
+# ---------------- RUN SERVER ----------------
 if __name__ == "__main__":
     app.run(debug=True)
