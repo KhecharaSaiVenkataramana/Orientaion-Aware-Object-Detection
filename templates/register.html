@@ -1,0 +1,66 @@
+{% extends "layout.html" %}
+{% block content %}
+<div style="min-height:80vh; display:flex; align-items:center; justify-content:center;">
+<div style="background:#1a1a2e; border:1px solid #2a2a4a; border-radius:16px; padding:48px 40px; width:100%; max-width:420px;">
+    <h2 style="color:#00cfff; margin:0 0 8px;">Create account</h2>
+    <p style="color:#888; margin:0 0 32px; font-size:14px;">Join OA-YOLO — your detections stay private</p>
+
+    {% if error %}
+    <div style="background:#ff444422; border:1px solid #ff4444; color:#ff8888;
+                padding:10px 14px; border-radius:8px; margin-bottom:20px; font-size:14px;">
+        {{ error }}
+    </div>
+    {% endif %}
+
+    <form method="POST">
+        <div style="margin-bottom:18px;">
+            <label style="color:#aaa; font-size:13px; display:block; margin-bottom:6px;">Username</label>
+            <input name="username" type="text" required
+                style="width:100%; background:#0f0f1e; border:1px solid #333;
+                       color:#fff; padding:10px 14px; border-radius:8px;
+                       font-size:14px; outline:none; box-sizing:border-box;"
+                onfocus="this.style.borderColor='#00cfff'"
+                onblur="this.style.borderColor='#333'">
+        </div>
+        <div style="margin-bottom:18px;">
+            <label style="color:#aaa; font-size:13px; display:block; margin-bottom:6px;">Email</label>
+            <input name="email" type="email" required
+                style="width:100%; background:#0f0f1e; border:1px solid #333;
+                       color:#fff; padding:10px 14px; border-radius:8px;
+                       font-size:14px; outline:none; box-sizing:border-box;"
+                onfocus="this.style.borderColor='#00cfff'"
+                onblur="this.style.borderColor='#333'">
+        </div>
+        <div style="margin-bottom:18px;">
+            <label style="color:#aaa; font-size:13px; display:block; margin-bottom:6px;">Password <span style="color:#555;">(min 6 chars)</span></label>
+            <input name="password" type="password" required
+                style="width:100%; background:#0f0f1e; border:1px solid #333;
+                       color:#fff; padding:10px 14px; border-radius:8px;
+                       font-size:14px; outline:none; box-sizing:border-box;"
+                onfocus="this.style.borderColor='#00cfff'"
+                onblur="this.style.borderColor='#333'">
+        </div>
+        <div style="margin-bottom:28px;">
+            <label style="color:#aaa; font-size:13px; display:block; margin-bottom:6px;">Confirm password</label>
+            <input name="confirm" type="password" required
+                style="width:100%; background:#0f0f1e; border:1px solid #333;
+                       color:#fff; padding:10px 14px; border-radius:8px;
+                       font-size:14px; outline:none; box-sizing:border-box;"
+                onfocus="this.style.borderColor='#00cfff'"
+                onblur="this.style.borderColor='#333'">
+        </div>
+        <button type="submit"
+            style="width:100%; background:#00cfff; color:#000; border:none;
+                   padding:12px; border-radius:8px; font-size:15px;
+                   font-weight:600; cursor:pointer;">
+            Create Account
+        </button>
+    </form>
+
+    <p style="color:#666; font-size:13px; text-align:center; margin-top:24px;">
+        Already have an account?
+        <a href="/login" style="color:#00cfff; text-decoration:none;">Sign in</a>
+    </p>
+</div>
+</div>
+{% endblock %}

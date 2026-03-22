@@ -1,3 +1,8 @@
+import os
+
+BASE = r"C:\Users\khech\OAOD Project\website"
+
+template = """\
 {% extends "layout.html" %}
 {% block content %}
 
@@ -294,3 +299,11 @@ function checkBeforeSubmit() {
 </script>
 
 {% endblock %}
+"""
+
+with open(os.path.join(BASE, "templates", "detection.html"), "w", encoding="utf-8") as f:
+    f.write(template)
+print("detection.html written!")
+print("Has folder warning:", "folder-warning" in template)
+print("Has CSV button:", "Export CSV" in template)
+print("Has PDF button:", "PDF Report" in template)

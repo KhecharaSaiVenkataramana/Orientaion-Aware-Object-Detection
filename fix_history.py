@@ -1,3 +1,6 @@
+import os
+
+template = """\
 {% extends "layout.html" %}
 {% block content %}
 <div style="max-width:1100px; margin:40px auto; padding:0 20px;">
@@ -39,7 +42,7 @@
         <tbody>
             {% for r in records %}
             {% set raw = r.output_path if r.output_path else '' %}
-            {% set fname = raw.replace('\\', '/').split('/')[-1] %}
+            {% set fname = raw.replace('\\\\', '/').split('/')[-1] %}
             <tr style="border-bottom:1px solid #1e1e3a; color:#eee;"
                 onmouseover="this.style.background='#ffffff08'"
                 onmouseout="this.style.background='transparent'">
@@ -118,4 +121,14 @@ document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') closeModal();
 });
 </script>
-{% endblock %}
+{% endblock %}"""
+
+path = os.path.join("templates", "history.html")
+with open(path, "w", encoding="utf-8") as f:
+    f.write(template)
+
+c = open(path, encoding="utf-8").read()
+print("Written:", len(c), "chars")
+print("Extends layout:", "extends" in c)
+print("Has login prompt:", "Sign in to see" in c)
+print("First 60:", repr(c[:60]))

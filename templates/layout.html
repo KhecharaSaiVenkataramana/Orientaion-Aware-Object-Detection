@@ -2,61 +2,312 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>{{ title }} | OA-YOLO</title>
+    <title>{{ title }} | RAVEN</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .nav-auth { display:flex; align-items:center; gap:12px; margin-left:auto; }
+        .nav-auth a { color:#aaa; text-decoration:none; font-size:14px; transition:color 0.2s; }
+        .nav-auth a:hover { color:#00cfff; }
+        .nav-user { color:#00cfff; font-size:14px; font-weight:500; }
+        .btn-logout {
+            background: transparent;
+            border: 1px solid #6644ff55;
+            color: #aaa; padding: 4px 12px;
+            border-radius: 20px; font-size: 13px;
+            cursor: pointer; text-decoration: none;
+            transition: 0.2s;
+        }
+        .btn-logout:hover { border-color:#00cfff; color:#00cfff; background:rgba(0,207,255,0.05); }
+
+        /* ── LOADING OVERLAY ── */
+        #loading-overlay {
+            display: none; position: fixed; inset: 0;
+            background: rgba(3,2,12,0.97); z-index: 9999;
+            align-items: center; justify-content: center;
+            flex-direction: column; gap: 28px;
+        }
+        #loading-overlay.active { display: flex; }
+        .orbit-ring { position:relative; width:160px; height:160px; }
+        .orbit-path { position:absolute; inset:0; border-radius:50%; border:1.5px dashed #6644ff44; }
+        .satellite-dot {
+            position:absolute; top:50%; left:50%;
+            width:160px; height:160px; margin:-80px 0 0 -80px;
+            animation:orbit 2.2s linear infinite; transform-origin:center;
+        }
+        .satellite-dot::after {
+            content:''; position:absolute; top:-6px; left:50%;
+            transform:translateX(-50%); width:12px; height:12px;
+            background:#00cfff; border-radius:50%;
+            box-shadow:0 0 10px #00cfff,0 0 20px #6644ff88;
+        }
+        @keyframes orbit{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+        .orbit-planet {
+            position:absolute; top:50%; left:50%;
+            transform:translate(-50%,-50%); width:52px; height:52px;
+            border-radius:50%; background:radial-gradient(circle at 35% 35%,#3311aa,#0a0520);
+            overflow:hidden;
+        }
+        .orbit-planet::after {
+            content:''; position:absolute; top:30%; left:10%;
+            width:45%; height:18%; background:#00cfff22;
+            border-radius:50%; transform:rotate(-20deg);
+        }
+        .scan-line { position:absolute; inset:0; border-radius:50%; overflow:hidden; }
+        .scan-line::before {
+            content:''; position:absolute; top:0; left:50%;
+            width:50%; height:100%;
+            background:conic-gradient(from 0deg,transparent 70%,#6644ff22 100%);
+            animation:scan 2.2s linear infinite; transform-origin:left center;
+        }
+        @keyframes scan{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+        .signal-rings { position:absolute; inset:0; border-radius:50%; }
+        .signal-ring {
+            position:absolute; border-radius:50%; border:1px solid #6644ff;
+            top:50%; left:50%; transform:translate(-50%,-50%) scale(0);
+            opacity:0; animation:pulse-ring 2.2s ease-out infinite;
+        }
+        .signal-ring:nth-child(1){width:70px;height:70px;animation-delay:0s}
+        .signal-ring:nth-child(2){width:100px;height:100px;animation-delay:0.6s}
+        .signal-ring:nth-child(3){width:130px;height:130px;animation-delay:1.2s}
+        @keyframes pulse-ring{0%{transform:translate(-50%,-50%) scale(0.3);opacity:0.8}100%{transform:translate(-50%,-50%) scale(1.1);opacity:0}}
+        .loading-title { color:#00cfff; font-size:18px; font-weight:600; letter-spacing:4px; text-transform:uppercase; font-family:'Courier New',monospace; }
+        .loading-status { color:#6644ff99; font-size:13px; letter-spacing:1px; animation:blink 1.2s ease-in-out infinite; font-family:'Courier New',monospace; }
+        @keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
+        .loading-dots { display:flex; gap:8px; align-items:center; }
+        .loading-dots span { width:6px; height:6px; border-radius:50%; background:#6644ff; animation:dot-bounce 1.4s ease-in-out infinite; }
+        .loading-dots span:nth-child(2){animation-delay:0.2s}
+        .loading-dots span:nth-child(3){animation-delay:0.4s}
+        @keyframes dot-bounce{0%,80%,100%{transform:scale(0.6);opacity:0.4}40%{transform:scale(1.2);opacity:1}}
+    </style>
 </head>
 <body>
 
-<!-- NAVBAR -->
-<div class="navbar">
+<!-- SCROLL PROGRESS BAR -->
+<div id="scroll-progress"></div>
+
+<!-- CURSOR DOT -->
+
+
+<!-- LOADING OVERLAY -->
+<div id="loading-overlay">
+    <div class="orbit-ring">
+        <div class="orbit-path"></div>
+        <div class="scan-line"></div>
+        <div class="signal-rings">
+            <div class="signal-ring"></div>
+            <div class="signal-ring"></div>
+            <div class="signal-ring"></div>
+        </div>
+        <div class="orbit-planet"></div>
+        <div class="satellite-dot"></div>
+    </div>
+    <div class="loading-title">RAVEN Scanning</div>
+    <div class="loading-dots"><span></span><span></span><span></span></div>
+    <div class="loading-status" id="loading-status">Initialising detection model...</div>
+</div>
+
+<div class="navbar" id="main-navbar">
     <div class="logo">
-        <a href="/"><img src="{{ url_for('static', filename='ui/logo.png') }}"></a>
+        <a href="/" style="display:flex;align-items:center;gap:14px;text-decoration:none;">
+            <img src="{{ url_for('static', filename='ui/logo.png') }}"
+                 style="height:78px;width:78px;border-radius:50%;object-fit:cover;
+                        border:2px solid #6644ff88;
+                        box-shadow:0 0 18px rgba(102,68,255,0.5),0 0 6px rgba(0,207,255,0.3);">
+            <div style="display:flex;flex-direction:column;line-height:1.1;">
+                <span style="font-family:'Courier New',monospace;font-size:22px;font-weight:700;
+                             letter-spacing:6px;color:#00cfff;">RAVEN</span>
+                <span style="font-size:10px;color:#6644ffaa;letter-spacing:2.5px;
+                             font-family:'Courier New',monospace;">DETECTION THAT NEVER BLINKS</span>
+            </div>
+        </a>
     </div>
     <div class="nav-links">
         <a href="/">Home</a>
         <a href="/detection">Detection</a>
         <a href="/datasets">Datasets</a>
-        <a href="/learn">Learn</a>
-        <a href="/tutorials">Tutorials</a>
         <a href="/about">About</a>
         <a href="/history">History</a>
+        <a href="/discuss">Discuss</a>
+    </div>
+    <div class="nav-auth">
+        {% if session.get('username') %}
+            <a href="/profile" class="nav-user">&#128113; {{ session['username'] }}</a>
+            <a href="/logout" class="btn-logout">Logout</a>
+        {% else %}
+            <a href="/login">Login</a>
+            <a href="/register" style="background:linear-gradient(135deg,#6644ff,#00cfff);color:#fff;padding:6px 16px;border-radius:20px;font-size:13px;text-decoration:none;font-weight:600;transition:0.2s;">Register</a>
+        {% endif %}
+
+        <!-- THEME TOGGLE -->
+        <div class="theme-toggle-wrap" title="Toggle light/dark mode">
+            <span class="theme-icon" id="icon-moon">&#127769;</span>
+            <label class="toggle-switch">
+                <input type="checkbox" id="theme-toggle">
+                <div class="toggle-track"></div>
+                <div class="toggle-knob" id="toggle-knob">&#127769;</div>
+            </label>
+            <span class="theme-icon" id="icon-sun">&#9728;&#65039;</span>
+        </div>
     </div>
 </div>
 
 {% block content %}{% endblock %}
 
 <script>
-document.querySelectorAll(".zoom-container").forEach(container => {
-
-    const img = container.querySelector(".zoom-image");
-    const lens = container.querySelector(".zoom-lens");
-
-    container.addEventListener("mousemove", e => {
-
-        const rect = container.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
-
-        lens.style.display = "block";
-
-        lens.style.left = (x - lens.offsetWidth/2) + "px";
-        lens.style.top = (y - lens.offsetHeight/2) + "px";
-
-        const zoom = 2.5;
-
-        img.style.transformOrigin = `${(x/rect.width)*100}% ${(y/rect.height)*100}%`;
-        img.style.transform = `scale(${zoom})`;
-
+// ── ACTIVE NAV LINK ──────────────────────────────────────────
+(function() {
+    var path = window.location.pathname;
+    document.querySelectorAll('.nav-links a').forEach(function(a) {
+        var href = a.getAttribute('href');
+        if (href === path || (href !== '/' && path.startsWith(href))) {
+            a.classList.add('active');
+        }
     });
+})();
 
-    container.addEventListener("mouseleave", () => {
-        lens.style.display = "none";
+// ── NAVBAR SCROLL EFFECT ─────────────────────────────────────
+window.addEventListener('scroll', function() {
+    var nb = document.getElementById('main-navbar');
+    if (window.scrollY > 40) nb.classList.add('scrolled');
+    else nb.classList.remove('scrolled');
+
+    // Scroll progress bar
+    var sp = document.getElementById('scroll-progress');
+    if (sp) {
+        var pct = (window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100;
+        sp.style.width = Math.min(pct, 100) + '%';
+    }
+});
+
+// ── SCROLL REVEAL ────────────────────────────────────────────
+(function() {
+    var els = document.querySelectorAll('.reveal');
+    if (!els.length) return;
+    var obs = new IntersectionObserver(function(entries) {
+        entries.forEach(function(e) {
+            if (e.isIntersecting) {
+                e.target.classList.add('visible');
+                obs.unobserve(e.target);
+            }
+        });
+    }, { threshold: 0.12 });
+    els.forEach(function(el) { obs.observe(el); });
+})();
+
+// ── LOADING OVERLAY ──────────────────────────────────────────
+var overlay  = document.getElementById('loading-overlay');
+var statusEl = document.getElementById('loading-status');
+var messages = [
+    "Initialising detection model...",
+    "Loading aerial imagery...",
+    "Running inference engine...",
+    "Processing oriented bounding boxes...",
+    "Analysing object density...",
+    "Saving results to cloud...",
+    "Almost done..."
+];
+var msgIndex = 0, msgTimer = null;
+function startLoading() {
+    overlay.classList.add('active');
+    msgIndex = 0;
+    statusEl.textContent = messages[0];
+    msgTimer = setInterval(function() {
+        msgIndex = (msgIndex + 1) % messages.length;
+        statusEl.textContent = messages[msgIndex];
+    }, 2000);
+}
+document.addEventListener('DOMContentLoaded', function() {
+    var form = document.querySelector('.control-panel form');
+    if (form) { form.addEventListener('submit', function() { startLoading(); }); }
+});
+
+// ── ZOOM ─────────────────────────────────────────────────────
+document.querySelectorAll(".zoom-container").forEach(function(container) {
+    var img  = container.querySelector(".zoom-image");
+    var lens = container.querySelector(".zoom-lens");
+    container.addEventListener("mousemove", function(e) {
+        var rect = container.getBoundingClientRect();
+        var x = e.clientX - rect.left;
+        var y = e.clientY - rect.top;
+        lens.style.display = "block";
+        lens.style.left = (x - lens.offsetWidth/2)  + "px";
+        lens.style.top  = (y - lens.offsetHeight/2) + "px";
+        img.style.transformOrigin = (x/rect.width*100) + "% " + (y/rect.height*100) + "%";
+        img.style.transform = "scale(2.5)";
+    });
+    container.addEventListener("mouseleave", function() {
+        lens.style.display  = "none";
         img.style.transform = "scale(1)";
     });
+});
 
+// ── THEME TOGGLE ─────────────────────────────────────────────
+(function() {
+    var toggle = document.getElementById('theme-toggle');
+    var knob   = document.getElementById('toggle-knob');
+    if (!toggle) return;
+
+    // Load saved preference
+    var saved = localStorage.getItem('raven-theme');
+    if (saved === 'light') {
+        document.body.classList.add('light-mode');
+                document.querySelectorAll('.step-card,.feature-card,.card,.dataset-card').forEach(function(el){
+                    el.style.background='';
+                    el.style.boxShadow='';
+                    el.style.borderColor='';
+                });
+        toggle.checked = true;
+        if (knob) knob.textContent = '\u2600\uFE0F';
+    } else {
+        if (knob) knob.textContent = '\u{1F319}';
+    }
+
+    toggle.addEventListener('change', function() {
+        if (this.checked) {
+            document.body.classList.add('light-mode');
+                document.querySelectorAll('.step-card,.feature-card,.card,.dataset-card').forEach(function(el){
+                    el.style.background='';
+                    el.style.boxShadow='';
+                    el.style.borderColor='';
+                });
+            localStorage.setItem('raven-theme', 'light');
+            if (knob) knob.textContent = '\u2600\uFE0F';
+        } else {
+            document.body.classList.remove('light-mode');
+                document.querySelectorAll('.step-card,.feature-card,.card,.dataset-card').forEach(function(el){
+                    el.style.background='';
+                    el.style.boxShadow='';
+                    el.style.borderColor='';
+                });
+            localStorage.setItem('raven-theme', 'dark');
+            if (knob) knob.textContent = '\u{1F319}';
+        }
+    });
+})();
+
+// ── BUTTON RIPPLE ─────────────────────────────────────────────
+document.addEventListener('click', function(e) {
+    var btn = e.target.closest('.btn-primary, .run-btn');
+    if (!btn) return;
+    var circle = document.createElement('span');
+    var d = Math.max(btn.clientWidth, btn.clientHeight);
+    var rect = btn.getBoundingClientRect();
+    circle.style.cssText = 'position:absolute;border-radius:50%;background:rgba(255,255,255,0.25);' +
+        'width:' + d + 'px;height:' + d + 'px;' +
+        'left:' + (e.clientX - rect.left - d/2) + 'px;' +
+        'top:'  + (e.clientY - rect.top  - d/2) + 'px;' +
+        'transform:scale(0);animation:ripple 0.6s linear;pointer-events:none;';
+    if (!document.getElementById('ripple-style')) {
+        var st = document.createElement('style');
+        st.id = 'ripple-style';
+        st.textContent = '@keyframes ripple{to{transform:scale(4);opacity:0}}';
+        document.head.appendChild(st);
+    }
+    btn.style.position = 'relative';
+    btn.style.overflow = 'hidden';
+    btn.appendChild(circle);
+    setTimeout(function() { circle.remove(); }, 700);
 });
 </script>
-
-
 </body>
 </html>

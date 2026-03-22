@@ -1,3 +1,48 @@
+import os
+
+BASE = r"C:\Users\khech\OAOD Project\website"
+
+# ── 1. ADD /discuss ROUTE TO APP.PY ────────────────────────────
+app_path = os.path.join(BASE, "app.py")
+content = open(app_path, encoding="utf-8").read()
+
+old = '@app.route("/about")\ndef about():\n    return render_template("about.html", title="About")'
+new = '''@app.route("/about")
+def about():
+    return render_template("about.html", title="About")
+
+@app.route("/discuss")
+def discuss():
+    return render_template("discuss.html", title="Discuss")'''
+
+if '/discuss' not in content:
+    content = content.replace(old, new)
+    with open(app_path, "w", encoding="utf-8") as f:
+        f.write(content)
+    print("discuss route added to app.py")
+else:
+    print("discuss route already exists")
+
+# ── 2. UPDATE LAYOUT.HTML — add Discuss to navbar ──────────────
+layout_path = os.path.join(BASE, "templates", "layout.html")
+layout = open(layout_path, encoding="utf-8").read()
+
+old_nav = '''        <a href="/about">About</a>
+        <a href="/history">History</a>'''
+new_nav = '''        <a href="/about">About</a>
+        <a href="/history">History</a>
+        <a href="/discuss">Discuss</a>'''
+
+if '/discuss' not in layout:
+    layout = layout.replace(old_nav, new_nav)
+    with open(layout_path, "w", encoding="utf-8") as f:
+        f.write(layout)
+    print("Discuss added to navbar")
+else:
+    print("Discuss already in navbar")
+
+# ── 3. UPDATE ABOUT.HTML ────────────────────────────────────────
+about = '''\
 {% extends "layout.html" %}
 {% block content %}
 
@@ -204,8 +249,8 @@
     <h2 style="font-size:32px;margin:0 0 36px;color:#fff;">What RAVEN can do</h2>
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:22px;">
         <div style="background:#0d0b22;border:1px solid rgba(102,68,255,0.18);border-radius:16px;padding:30px;transition:0.3s;"
-             onmouseover="var lm=document.body.classList.contains('light-mode');this.style.borderColor='#6644ff';this.style.transform='translateY(-6px)';this.style.background=lm?'#fff':'#0d0b22'"
-             onmouseout="var lm=document.body.classList.contains('light-mode');this.style.borderColor='rgba(102,68,255,0.18)';this.style.transform='none';this.style.background=lm?'#fff':'#0d0b22'">
+             onmouseover="this.style.borderColor='#6644ff';this.style.transform='translateY(-6px)'"
+             onmouseout="this.style.borderColor='rgba(102,68,255,0.18)';this.style.transform='none'">
             <div style="font-size:28px;margin-bottom:14px;">&#127947;</div>
             <h3 style="font-size:17px;margin:0 0 10px;color:#00cfff;">Multi-Model Detection</h3>
             <p style="color:#8877cc;font-size:14px;line-height:1.7;margin:0;">
@@ -215,8 +260,8 @@
             </p>
         </div>
         <div style="background:#0d0b22;border:1px solid rgba(102,68,255,0.18);border-radius:16px;padding:30px;transition:0.3s;"
-             onmouseover="var lm=document.body.classList.contains('light-mode');this.style.borderColor='#6644ff';this.style.transform='translateY(-6px)';this.style.background=lm?'#fff':'#0d0b22'"
-             onmouseout="var lm=document.body.classList.contains('light-mode');this.style.borderColor='rgba(102,68,255,0.18)';this.style.transform='none';this.style.background=lm?'#fff':'#0d0b22'">
+             onmouseover="this.style.borderColor='#6644ff';this.style.transform='translateY(-6px)'"
+             onmouseout="this.style.borderColor='rgba(102,68,255,0.18)';this.style.transform='none'">
             <div style="font-size:28px;margin-bottom:14px;">&#128230;</div>
             <h3 style="font-size:17px;margin:0 0 10px;color:#00cfff;">Batch Processing</h3>
             <p style="color:#8877cc;font-size:14px;line-height:1.7;margin:0;">
@@ -226,8 +271,8 @@
             </p>
         </div>
         <div style="background:#0d0b22;border:1px solid rgba(102,68,255,0.18);border-radius:16px;padding:30px;transition:0.3s;"
-             onmouseover="var lm=document.body.classList.contains('light-mode');this.style.borderColor='#6644ff';this.style.transform='translateY(-6px)';this.style.background=lm?'#fff':'#0d0b22'"
-             onmouseout="var lm=document.body.classList.contains('light-mode');this.style.borderColor='rgba(102,68,255,0.18)';this.style.transform='none';this.style.background=lm?'#fff':'#0d0b22'">
+             onmouseover="this.style.borderColor='#6644ff';this.style.transform='translateY(-6px)'"
+             onmouseout="this.style.borderColor='rgba(102,68,255,0.18)';this.style.transform='none'">
             <div style="font-size:28px;margin-bottom:14px;">&#128202;</div>
             <h3 style="font-size:17px;margin:0 0 10px;color:#00cfff;">Performance Analytics</h3>
             <p style="color:#8877cc;font-size:14px;line-height:1.7;margin:0;">
@@ -237,8 +282,8 @@
             </p>
         </div>
         <div style="background:#0d0b22;border:1px solid rgba(102,68,255,0.18);border-radius:16px;padding:30px;transition:0.3s;"
-             onmouseover="var lm=document.body.classList.contains('light-mode');this.style.borderColor='#6644ff';this.style.transform='translateY(-6px)';this.style.background=lm?'#fff':'#0d0b22'"
-             onmouseout="var lm=document.body.classList.contains('light-mode');this.style.borderColor='rgba(102,68,255,0.18)';this.style.transform='none';this.style.background=lm?'#fff':'#0d0b22'">
+             onmouseover="this.style.borderColor='#6644ff';this.style.transform='translateY(-6px)'"
+             onmouseout="this.style.borderColor='rgba(102,68,255,0.18)';this.style.transform='none'">
             <div style="font-size:28px;margin-bottom:14px;">&#128274;</div>
             <h3 style="font-size:17px;margin:0 0 10px;color:#00cfff;">User Accounts</h3>
             <p style="color:#8877cc;font-size:14px;line-height:1.7;margin:0;">
@@ -248,8 +293,8 @@
             </p>
         </div>
         <div style="background:#0d0b22;border:1px solid rgba(102,68,255,0.18);border-radius:16px;padding:30px;transition:0.3s;"
-             onmouseover="var lm=document.body.classList.contains('light-mode');this.style.borderColor='#6644ff';this.style.transform='translateY(-6px)';this.style.background=lm?'#fff':'#0d0b22'"
-             onmouseout="var lm=document.body.classList.contains('light-mode');this.style.borderColor='rgba(102,68,255,0.18)';this.style.transform='none';this.style.background=lm?'#fff':'#0d0b22'">
+             onmouseover="this.style.borderColor='#6644ff';this.style.transform='translateY(-6px)'"
+             onmouseout="this.style.borderColor='rgba(102,68,255,0.18)';this.style.transform='none'">
             <div style="font-size:28px;margin-bottom:14px;">&#128190;</div>
             <h3 style="font-size:17px;margin:0 0 10px;color:#00cfff;">Cloud History</h3>
             <p style="color:#8877cc;font-size:14px;line-height:1.7;margin:0;">
@@ -259,8 +304,8 @@
             </p>
         </div>
         <div style="background:#0d0b22;border:1px solid rgba(102,68,255,0.18);border-radius:16px;padding:30px;transition:0.3s;"
-             onmouseover="var lm=document.body.classList.contains('light-mode');this.style.borderColor='#6644ff';this.style.transform='translateY(-6px)';this.style.background=lm?'#fff':'#0d0b22'"
-             onmouseout="var lm=document.body.classList.contains('light-mode');this.style.borderColor='rgba(102,68,255,0.18)';this.style.transform='none';this.style.background=lm?'#fff':'#0d0b22'">
+             onmouseover="this.style.borderColor='#6644ff';this.style.transform='translateY(-6px)'"
+             onmouseout="this.style.borderColor='rgba(102,68,255,0.18)';this.style.transform='none'">
             <div style="font-size:28px;margin-bottom:14px;">&#127919;</div>
             <h3 style="font-size:17px;margin:0 0 10px;color:#00cfff;">Fine-Grained Classification</h3>
             <p style="color:#8877cc;font-size:14px;line-height:1.7;margin:0;">
@@ -513,3 +558,296 @@ function toggleFaq(btn) {
 }
 </script>
 {% endblock %}
+'''
+
+with open(os.path.join(BASE, "templates", "about.html"), "w", encoding="utf-8") as f:
+    f.write(about)
+print("about.html written")
+
+# ── 4. CREATE DISCUSS.HTML ──────────────────────────────────────
+discuss = '''\
+{% extends "layout.html" %}
+{% block content %}
+
+<!-- HERO -->
+<div style="background:linear-gradient(135deg,#07051a 0%,#0d0b22 50%,#0a0820 100%);
+            padding:80px 120px 60px;border-bottom:1px solid rgba(102,68,255,0.2);
+            position:relative;overflow:hidden;">
+    <div style="position:absolute;inset:0;opacity:0.04;
+                background-image:linear-gradient(rgba(102,68,255,1) 1px,transparent 1px),
+                linear-gradient(90deg,rgba(102,68,255,1) 1px,transparent 1px);
+                background-size:40px 40px;"></div>
+    <div style="position:relative;">
+        <div style="display:inline-block;background:rgba(102,68,255,0.12);
+                    border:1px solid rgba(102,68,255,0.35);color:#6644ff;
+                    padding:5px 16px;border-radius:30px;font-size:11px;font-weight:700;
+                    letter-spacing:3px;margin-bottom:22px;font-family:'Courier New',monospace;">
+            DISCUSS
+        </div>
+        <h1 style="font-size:52px;font-weight:700;margin:0 0 16px;
+                   background:linear-gradient(135deg,#fff 0%,#00cfff 60%,#6644ff 100%);
+                   -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">
+            Talk to the team.
+        </h1>
+        <p style="font-size:18px;color:#8877cc;max-width:620px;line-height:1.7;margin:0;">
+            Have questions, suggestions or feedback about RAVEN? Reach out to us directly
+            or connect on our platforms. We are always open to ideas and collaboration.
+        </p>
+    </div>
+</div>
+
+<!-- CONTACT CARDS -->
+<div style="padding:70px 120px 0;">
+    <div style="color:#6644ff;font-size:11px;font-weight:700;letter-spacing:3px;
+                font-family:'Courier New',monospace;margin-bottom:8px;">GET IN TOUCH</div>
+    <h2 style="font-size:32px;margin:0 0 36px;color:#fff;">Contact the team</h2>
+
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:20px;">
+
+        <!-- Anudeep -->
+        <div style="background:#0d0b22;border:1px solid rgba(102,68,255,0.2);border-radius:16px;padding:28px;">
+            <div style="width:52px;height:52px;border-radius:50%;
+                        background:linear-gradient(135deg,#6644ff,#00cfff);
+                        display:flex;align-items:center;justify-content:center;
+                        font-size:20px;font-weight:700;margin-bottom:14px;color:#fff;">A</div>
+            <h3 style="font-size:15px;margin:0 0 4px;color:#fff;">Anudeep Gonuguntla</h3>
+            <div style="color:#00cfff;font-size:10px;letter-spacing:1.5px;
+                        font-family:'Courier New',monospace;margin-bottom:16px;">FRONTEND &amp; DEPLOYMENT</div>
+            <div style="display:flex;flex-direction:column;gap:10px;">
+                <a href="mailto:placeholder@email.com"
+                   style="display:flex;align-items:center;gap:8px;color:#8877cc;font-size:13px;text-decoration:none;transition:0.2s;"
+                   onmouseover="this.style.color='#00cfff'" onmouseout="this.style.color='#8877cc'">
+                    <span style="font-size:16px;">&#128140;</span> Email
+                </a>
+                <a href="https://linkedin.com/in/placeholder"
+                   style="display:flex;align-items:center;gap:8px;color:#8877cc;font-size:13px;text-decoration:none;transition:0.2s;"
+                   onmouseover="this.style.color='#00cfff'" onmouseout="this.style.color='#8877cc'" target="_blank">
+                    <span style="font-size:16px;">&#128101;</span> LinkedIn
+                </a>
+                <a href="https://github.com/placeholder"
+                   style="display:flex;align-items:center;gap:8px;color:#8877cc;font-size:13px;text-decoration:none;transition:0.2s;"
+                   onmouseover="this.style.color='#00cfff'" onmouseout="this.style.color='#8877cc'" target="_blank">
+                    <span style="font-size:16px;">&#128196;</span> GitHub
+                </a>
+            </div>
+        </div>
+
+        <!-- Khechara -->
+        <div style="background:#0d0b22;border:1px solid rgba(0,207,255,0.2);border-radius:16px;padding:28px;">
+            <div style="width:52px;height:52px;border-radius:50%;
+                        background:linear-gradient(135deg,#005577,#00cfff);
+                        display:flex;align-items:center;justify-content:center;
+                        font-size:20px;font-weight:700;margin-bottom:14px;color:#fff;">K</div>
+            <h3 style="font-size:15px;margin:0 0 4px;color:#fff;">Khechara Sai Venkata Ramana</h3>
+            <div style="color:#00cfff;font-size:10px;letter-spacing:1.5px;
+                        font-family:'Courier New',monospace;margin-bottom:16px;">DEEP LEARNING &amp; TRAINING</div>
+            <div style="display:flex;flex-direction:column;gap:10px;">
+                <a href="mailto:placeholder@email.com"
+                   style="display:flex;align-items:center;gap:8px;color:#8877cc;font-size:13px;text-decoration:none;transition:0.2s;"
+                   onmouseover="this.style.color='#00cfff'" onmouseout="this.style.color='#8877cc'">
+                    <span style="font-size:16px;">&#128140;</span> Email
+                </a>
+                <a href="https://linkedin.com/in/placeholder"
+                   style="display:flex;align-items:center;gap:8px;color:#8877cc;font-size:13px;text-decoration:none;transition:0.2s;"
+                   onmouseover="this.style.color='#00cfff'" onmouseout="this.style.color='#8877cc'" target="_blank">
+                    <span style="font-size:16px;">&#128101;</span> LinkedIn
+                </a>
+                <a href="https://github.com/placeholder"
+                   style="display:flex;align-items:center;gap:8px;color:#8877cc;font-size:13px;text-decoration:none;transition:0.2s;"
+                   onmouseover="this.style.color='#00cfff'" onmouseout="this.style.color='#8877cc'" target="_blank">
+                    <span style="font-size:16px;">&#128196;</span> GitHub
+                </a>
+            </div>
+        </div>
+
+        <!-- Dhanoosh -->
+        <div style="background:#0d0b22;border:1px solid rgba(102,68,255,0.2);border-radius:16px;padding:28px;">
+            <div style="width:52px;height:52px;border-radius:50%;
+                        background:linear-gradient(135deg,#3311aa,#6644ff);
+                        display:flex;align-items:center;justify-content:center;
+                        font-size:20px;font-weight:700;margin-bottom:14px;color:#fff;">D</div>
+            <h3 style="font-size:15px;margin:0 0 4px;color:#fff;">Dhanoosh Reddy Devalapalle</h3>
+            <div style="color:#6644ff;font-size:10px;letter-spacing:1.5px;
+                        font-family:'Courier New',monospace;margin-bottom:16px;">TESTING &amp; DATABASE</div>
+            <div style="display:flex;flex-direction:column;gap:10px;">
+                <a href="mailto:placeholder@email.com"
+                   style="display:flex;align-items:center;gap:8px;color:#8877cc;font-size:13px;text-decoration:none;transition:0.2s;"
+                   onmouseover="this.style.color='#6644ff'" onmouseout="this.style.color='#8877cc'">
+                    <span style="font-size:16px;">&#128140;</span> Email
+                </a>
+                <a href="https://linkedin.com/in/placeholder"
+                   style="display:flex;align-items:center;gap:8px;color:#8877cc;font-size:13px;text-decoration:none;transition:0.2s;"
+                   onmouseover="this.style.color='#6644ff'" onmouseout="this.style.color='#8877cc'" target="_blank">
+                    <span style="font-size:16px;">&#128101;</span> LinkedIn
+                </a>
+                <a href="https://github.com/placeholder"
+                   style="display:flex;align-items:center;gap:8px;color:#8877cc;font-size:13px;text-decoration:none;transition:0.2s;"
+                   onmouseover="this.style.color='#6644ff'" onmouseout="this.style.color='#8877cc'" target="_blank">
+                    <span style="font-size:16px;">&#128196;</span> GitHub
+                </a>
+            </div>
+        </div>
+
+        <!-- Nitya -->
+        <div style="background:#0d0b22;border:1px solid rgba(170,68,255,0.2);border-radius:16px;padding:28px;">
+            <div style="width:52px;height:52px;border-radius:50%;
+                        background:linear-gradient(135deg,#440055,#aa44ff);
+                        display:flex;align-items:center;justify-content:center;
+                        font-size:20px;font-weight:700;margin-bottom:14px;color:#fff;">N</div>
+            <h3 style="font-size:15px;margin:0 0 4px;color:#fff;">Nitya Sri Santoshini Nandanavanam</h3>
+            <div style="color:#aa44ff;font-size:10px;letter-spacing:1.5px;
+                        font-family:'Courier New',monospace;margin-bottom:16px;">CONTRIBUTOR</div>
+            <div style="display:flex;flex-direction:column;gap:10px;">
+                <a href="mailto:placeholder@email.com"
+                   style="display:flex;align-items:center;gap:8px;color:#8877cc;font-size:13px;text-decoration:none;transition:0.2s;"
+                   onmouseover="this.style.color='#aa44ff'" onmouseout="this.style.color='#8877cc'">
+                    <span style="font-size:16px;">&#128140;</span> Email
+                </a>
+                <a href="https://linkedin.com/in/placeholder"
+                   style="display:flex;align-items:center;gap:8px;color:#8877cc;font-size:13px;text-decoration:none;transition:0.2s;"
+                   onmouseover="this.style.color='#aa44ff'" onmouseout="this.style.color='#8877cc'" target="_blank">
+                    <span style="font-size:16px;">&#128101;</span> LinkedIn
+                </a>
+                <a href="https://github.com/placeholder"
+                   style="display:flex;align-items:center;gap:8px;color:#8877cc;font-size:13px;text-decoration:none;transition:0.2s;"
+                   onmouseover="this.style.color='#aa44ff'" onmouseout="this.style.color='#8877cc'" target="_blank">
+                    <span style="font-size:16px;">&#128196;</span> GitHub
+                </a>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- FUTURE UPDATES -->
+<div style="padding:60px 120px 0;">
+    <div style="color:#6644ff;font-size:11px;font-weight:700;letter-spacing:3px;
+                font-family:'Courier New',monospace;margin-bottom:8px;">ROADMAP</div>
+    <h2 style="font-size:32px;margin:0 0 36px;color:#fff;">Future updates &amp; suggestions</h2>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
+
+        <div style="background:#0d0b22;border:1px solid rgba(0,207,255,0.2);border-radius:16px;padding:32px;">
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
+                <span style="background:rgba(0,207,255,0.15);color:#00cfff;padding:4px 12px;
+                             border-radius:20px;font-size:10px;font-weight:700;letter-spacing:2px;
+                             font-family:'Courier New',monospace;">PLANNED</span>
+                <h3 style="font-size:17px;margin:0;color:#fff;">Real-time video detection</h3>
+            </div>
+            <p style="color:#8877cc;font-size:14px;line-height:1.7;margin:0;">
+                Extend RAVEN to process live drone video feeds frame-by-frame,
+                outputting OBB detections in real time with adjustable confidence
+                thresholds and model switching on the fly.
+            </p>
+        </div>
+
+        <div style="background:#0d0b22;border:1px solid rgba(102,68,255,0.2);border-radius:16px;padding:32px;">
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
+                <span style="background:rgba(102,68,255,0.15);color:#6644ff;padding:4px 12px;
+                             border-radius:20px;font-size:10px;font-weight:700;letter-spacing:2px;
+                             font-family:'Courier New',monospace;">PLANNED</span>
+                <h3 style="font-size:17px;margin:0;color:#fff;">Full FAIR1M dataset training</h3>
+            </div>
+            <p style="color:#8877cc;font-size:14px;line-height:1.7;margin:0;">
+                The current FAIR1M model was trained on 1,732 images. Training on the full
+                15,000 image dataset (requires official registration) would push mAP50
+                from 0.165 to an estimated 0.35-0.50+ for fine-grained vehicle classification.
+            </p>
+        </div>
+
+        <div style="background:#0d0b22;border:1px solid rgba(0,207,255,0.2);border-radius:16px;padding:32px;">
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
+                <span style="background:rgba(0,207,255,0.15);color:#00cfff;padding:4px 12px;
+                             border-radius:20px;font-size:10px;font-weight:700;letter-spacing:2px;
+                             font-family:'Courier New',monospace;">PLANNED</span>
+                <h3 style="font-size:17px;margin:0;color:#fff;">Heatmap &amp; density visualisation</h3>
+            </div>
+            <p style="color:#8877cc;font-size:14px;line-height:1.7;margin:0;">
+                Add an overlay mode that generates object density heatmaps on top of
+                aerial imagery — making it easy to identify congestion hotspots,
+                high-traffic areas and clustering patterns at a glance.
+            </p>
+        </div>
+
+        <div style="background:#0d0b22;border:1px solid rgba(102,68,255,0.2);border-radius:16px;padding:32px;">
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
+                <span style="background:rgba(102,68,255,0.15);color:#6644ff;padding:4px 12px;
+                             border-radius:20px;font-size:10px;font-weight:700;letter-spacing:2px;
+                             font-family:'Courier New',monospace;">PLANNED</span>
+                <h3 style="font-size:17px;margin:0;color:#fff;">Analytics dashboard</h3>
+            </div>
+            <p style="color:#8877cc;font-size:14px;line-height:1.7;margin:0;">
+                A dedicated dashboard page showing your detection history as charts —
+                objects detected over time, model usage breakdown, average inference
+                speed trends and per-class detection frequency.
+            </p>
+        </div>
+
+        <div style="background:#0d0b22;border:1px solid rgba(0,207,255,0.2);border-radius:16px;padding:32px;">
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
+                <span style="background:rgba(0,255,100,0.1);color:#00ff88;padding:4px 12px;
+                             border-radius:20px;font-size:10px;font-weight:700;letter-spacing:2px;
+                             font-family:'Courier New',monospace;">SUGGESTION</span>
+                <h3 style="font-size:17px;margin:0;color:#fff;">API access</h3>
+            </div>
+            <p style="color:#8877cc;font-size:14px;line-height:1.7;margin:0;">
+                Expose RAVEN as a REST API so developers can integrate aerial object
+                detection into their own applications — sending images programmatically
+                and receiving structured JSON detection results.
+            </p>
+        </div>
+
+        <div style="background:#0d0b22;border:1px solid rgba(102,68,255,0.2);border-radius:16px;padding:32px;">
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
+                <span style="background:rgba(0,255,100,0.1);color:#00ff88;padding:4px 12px;
+                             border-radius:20px;font-size:10px;font-weight:700;letter-spacing:2px;
+                             font-family:'Courier New',monospace;">SUGGESTION</span>
+                <h3 style="font-size:17px;margin:0;color:#fff;">Custom model upload</h3>
+            </div>
+            <p style="color:#8877cc;font-size:14px;line-height:1.7;margin:0;">
+                Allow users to upload their own YOLOv8 OBB .pt model files and run
+                detection with their custom weights — turning RAVEN into a
+                general-purpose aerial detection platform beyond the built-in models.
+            </p>
+        </div>
+
+    </div>
+</div>
+
+<!-- FEEDBACK SECTION -->
+<div style="padding:60px 120px 80px;">
+    <div style="color:#6644ff;font-size:11px;font-weight:700;letter-spacing:3px;
+                font-family:'Courier New',monospace;margin-bottom:8px;">FEEDBACK</div>
+    <h2 style="font-size:32px;margin:0 0 16px;color:#fff;">Share your thoughts</h2>
+    <p style="color:#8877cc;font-size:15px;line-height:1.7;max-width:620px;margin:0 0 36px;">
+        Found a bug? Have a feature request? Want to collaborate on extending RAVEN?
+        We would love to hear from you. Reach out to any team member directly
+        using the contact links above.
+    </p>
+
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px;max-width:700px;">
+        <div style="background:#0d0b22;border:1px solid rgba(102,68,255,0.2);border-radius:14px;padding:24px;text-align:center;">
+            <div style="font-size:28px;margin-bottom:10px;">&#128027;</div>
+            <div style="color:#fff;font-size:14px;font-weight:600;margin-bottom:6px;">Report a bug</div>
+            <div style="color:#8877cc;font-size:12px;line-height:1.5;">Found something broken? Tell us exactly what happened.</div>
+        </div>
+        <div style="background:#0d0b22;border:1px solid rgba(0,207,255,0.2);border-radius:14px;padding:24px;text-align:center;">
+            <div style="font-size:28px;margin-bottom:10px;">&#128161;</div>
+            <div style="color:#fff;font-size:14px;font-weight:600;margin-bottom:6px;">Suggest a feature</div>
+            <div style="color:#8877cc;font-size:12px;line-height:1.5;">Have an idea that would make RAVEN better?</div>
+        </div>
+        <div style="background:#0d0b22;border:1px solid rgba(102,68,255,0.2);border-radius:14px;padding:24px;text-align:center;">
+            <div style="font-size:28px;margin-bottom:10px;">&#129309;</div>
+            <div style="color:#fff;font-size:14px;font-weight:600;margin-bottom:6px;">Collaborate</div>
+            <div style="color:#8877cc;font-size:12px;line-height:1.5;">Interested in extending this research further?</div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+'''
+
+with open(os.path.join(BASE, "templates", "discuss.html"), "w", encoding="utf-8") as f:
+    f.write(discuss)
+print("discuss.html written")
+print("\nAll done! Run: python app.py")

@@ -1,4 +1,7 @@
-{% extends "layout.html" %}
+import os
+BASE = r"C:\Users\khech\OAOD Project\website"
+
+page = '''{% extends "layout.html" %}
 {% block content %}
 
 <!-- HERO HEADER -->
@@ -520,3 +523,9 @@
 </div>
 
 {% endblock %}
+'''
+
+with open(os.path.join(BASE, "templates", "datasets.html"), "w", encoding="utf-8") as f:
+    f.write(page)
+print("datasets.html written!")
+print("Lines:", len(page.split('\n')))

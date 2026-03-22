@@ -1,5 +1,7 @@
-from flask import (Flask, render_template, request,
-                   redirect, url_for, session, send_file, jsonify)
+import os
+
+code = '''from flask import (Flask, render_template, request,
+                   redirect, url_for, session, send_file)
 from ultralytics import YOLO
 from PIL import Image
 import numpy as np
@@ -21,7 +23,7 @@ os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 STANDARD_MODEL = YOLO("models/yolov8n.pt")
 DOTA_MODEL     = YOLO("models/DOTA_Model.pt")
 HRSC_MODEL     = YOLO("models/HRSC_Model.pt")
-FAIR1M_MODEL   = YOLO(r"C:\Users\khech\OAOD Project\runs\obb\FAIR1M_Vehicle_Model_v4\weights\best.pt")
+FAIR1M_MODEL   = YOLO(r"C:\\Users\\khech\\OAOD Project\\runs\\obb\\FAIR1M_Vehicle_Model_v2\\weights\\best.pt")
 
 DOTA_VEHICLE_CLASSES = {9, 10}
 FAIR1M_CLASSES = [
@@ -29,7 +31,7 @@ FAIR1M_CLASSES = [
     "other-vehicle", "bus", "excavator", "trailer",
     "truck-tractor", "tractor"
 ]
-FINE_GRAINED_CONF = 0.01
+FINE_GRAINED_CONF = 0.3
 
 DB_CONFIG = {
     "host":     "bg0mwot4am56wljm4ims-mysql.services.clever-cloud.com",
@@ -42,16 +44,7 @@ DB_CONFIG = {
 }
 
 def get_db():
-    import time as _time
-    for attempt in range(3):
-        try:
-            return pymysql.connect(**DB_CONFIG)
-        except Exception as e:
-            if attempt < 2:
-                print(f"[DB] Connection attempt {attempt+1} failed, retrying...")
-                _time.sleep(2)
-            else:
-                raise e
+    return pymysql.connect(**DB_CONFIG)
 
 def init_db():
     conn = get_db()
@@ -439,27 +432,6 @@ def detection():
 
     return render_template("detection.html")
 
-@app.route("/download-zip")
-def download_zip():
-    import zipfile, io
-    files_param = request.args.get("files", "")
-    filenames = [f.strip() for f in files_param.split(",") if f.strip()]
-    if not filenames:
-        return "No files specified.", 400
-
-    zip_buffer = io.BytesIO()
-    with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zf:
-        for fname in filenames:
-            from werkzeug.utils import secure_filename
-            safe = secure_filename(fname)
-            fpath = os.path.join(OUTPUT_FOLDER, safe)
-            if os.path.exists(fpath):
-                zf.write(fpath, safe)
-    zip_buffer.seek(0)
-    return send_file(zip_buffer, as_attachment=True,
-                     download_name="detection_results.zip",
-                     mimetype="application/zip")
-
 @app.route("/history")
 def history():
     records = get_user_detections(limit=50)
@@ -486,212 +458,19 @@ def tutorials():
 def about():
     return render_template("about.html", title="About")
 
-@app.route("/discuss")
-def discuss():
-    return render_template("discuss.html", title="Discuss")
-
-@app.route("/send-suggestion", methods=["POST"])
-def send_suggestion():
-    import smtplib
-    from email.mime.text import MIMEText
-    from email.mime.multipart import MIMEMultipart
-
-    SMTP_USER     = "team.ravendetections@gmail.com"
-    SMTP_PASSWORD = "qpye xwcy ndfh pcbk"
-    TEAM_EMAIL    = "team.ravendetections@gmail.com"
-
-    category     = request.form.get("category", "General")
-    message      = request.form.get("message", "").strip()
-    sender_email = session.get("username", "Anonymous")
-
-    if not message:
-        return jsonify({"status": "error", "msg": "Message cannot be empty"}), 400
-
-    if SMTP_USER == "PLACEHOLDER_EMAIL":
-        print("[SUGGESTION] From: " + sender_email + " | Cat: " + category + " | Msg: " + message)
-        return jsonify({"status": "ok", "msg": "Suggestion received!"})
-
-    try:
-        msg = MIMEMultipart("alternative")
-        subject = "[RAVEN] " + category + " from " + sender_email
-        msg["Subject"] = subject
-        msg["From"]    = SMTP_USER
-        msg["To"]      = TEAM_EMAIL
-        msg["Reply-To"] = sender_email
-        body = "<html><body><h2>New RAVEN Suggestion</h2>"
-        body += "<p><b>From:</b> " + sender_email + "</p>"
-        body += "<p><b>Category:</b> " + category + "</p>"
-        body += "<p><b>Message:</b> " + message + "</p>"
-        body += "</body></html>"
-        msg.attach(MIMEText(body, "html"))
-        with smtplib.SMTP("smtp.gmail.com", 587) as server:
-            server.starttls()
-            server.login(SMTP_USER, SMTP_PASSWORD)
-            server.sendmail(SMTP_USER, TEAM_EMAIL, msg.as_string())
-        return jsonify({"status": "ok", "msg": "Suggestion sent!"})
-    except Exception as e:
-        print("[EMAIL ERROR] " + str(e))
-        return jsonify({"status": "error", "msg": "Failed to send. Try again later."})
-
-
-
-@app.route("/download-report/csv")
-def download_report_csv():
-    import csv, io, json
-    from urllib.parse import unquote
-    stats_param = request.args.get("stats", "[]")
-    try:
-        stats = json.loads(unquote(stats_param))
-    except Exception:
-        stats = []
-    output = io.StringIO()
-    writer = csv.writer(output)
-    writer.writerow(["#","Filename","Model","Resolution","Objects","Density","Time(ms)","FPS","Output File"])
-    for i, row in enumerate(stats, 1):
-        writer.writerow([i, row.get("name",""), row.get("model",""), row.get("size",""),
-                         row.get("objects",""), row.get("density",""), row.get("time",""),
-                         row.get("fps",""), row.get("outfile","")])
-    output.seek(0)
-    return send_file(io.BytesIO(output.getvalue().encode("utf-8")),
-                     as_attachment=True, download_name="raven_report.csv", mimetype="text/csv")
-
-
-@app.route("/download-report/pdf")
-def download_report_pdf():
-    import io as _io
-    from datetime import datetime as dt
-    files_param = request.args.get("files", "")
-    filenames   = [f.strip() for f in files_param.split(",") if f.strip()]
-    try:
-        from reportlab.lib.pagesizes import A4
-        from reportlab.lib import colors
-        from reportlab.lib.units import cm
-        from reportlab.platypus import (SimpleDocTemplate, Paragraph, Spacer,
-                                         Table, TableStyle, Image as RLImage, HRFlowable)
-        from reportlab.lib.styles import ParagraphStyle
-        from reportlab.lib.enums import TA_CENTER
-    except ImportError:
-        return "Run: pip install reportlab", 500
-
-    buf = _io.BytesIO()
-    doc = SimpleDocTemplate(buf, pagesize=A4,
-                            topMargin=2*cm, bottomMargin=2*cm,
-                            leftMargin=2*cm, rightMargin=2*cm)
-
-    title_s = ParagraphStyle("T", fontSize=28, fontName="Helvetica-Bold",
-                              textColor=colors.HexColor("#00cfff"), alignment=TA_CENTER, spaceAfter=6)
-    sub_s   = ParagraphStyle("S", fontSize=11, fontName="Helvetica",
-                              textColor=colors.HexColor("#8877cc"), alignment=TA_CENTER, spaceAfter=4)
-    sec_s   = ParagraphStyle("H", fontSize=14, fontName="Helvetica-Bold",
-                              textColor=colors.HexColor("#6644ff"), spaceBefore=18, spaceAfter=8)
-    body_s  = ParagraphStyle("B", fontSize=10, fontName="Helvetica",
-                              textColor=colors.HexColor("#cccccc"), spaceAfter=4)
-
-    story = []
-    story.append(Spacer(1, 1.5*cm))
-    story.append(Paragraph("RAVEN", title_s))
-    story.append(Paragraph("Detection Analysis Report", sub_s))
-    story.append(Paragraph("Rotated-Annotation Vehicle and Entity Network", sub_s))
-    story.append(Spacer(1, 0.4*cm))
-    story.append(HRFlowable(width="100%", thickness=1, color=colors.HexColor("#6644ff"), spaceAfter=12))
-    story.append(Paragraph("Generated: " + dt.now().strftime("%d %B %Y, %H:%M"), sub_s))
-    story.append(Paragraph("Total images: " + str(len(filenames)), sub_s))
-    story.append(Spacer(1, 0.8*cm))
-
-    story.append(Paragraph("Detection Results", sec_s))
-
-    conn = get_db()
-    outfile_stats = []
-    try:
-        with conn.cursor() as cur:
-            for fname in filenames:
-                safe = secure_filename(os.path.basename(fname))
-                cur.execute("""SELECT filename,model_used,objects_found,inference_ms,fps,image_size
-                               FROM detections WHERE output_path LIKE %s
-                               ORDER BY detected_at DESC LIMIT 1""", ("%" + safe + "%",))
-                row = cur.fetchone()
-                if row:
-                    outfile_stats.append(row)
-    except Exception:
-        pass
-    finally:
-        conn.close()
-
-    if outfile_stats:
-        tdata = [["Filename","Model","Objects","Time(ms)","FPS","Size"]]
-        for r in outfile_stats:
-            tdata.append([str(r.get("filename",""))[:22], str(r.get("model_used","")),
-                          str(r.get("objects_found","")), str(round(r.get("inference_ms",0),1)),
-                          str(round(r.get("fps",0),2)), str(r.get("image_size",""))])
-        tbl = Table(tdata, repeatRows=1, colWidths=[4.5*cm,3.5*cm,2*cm,2.5*cm,2*cm,3*cm])
-        tbl.setStyle(TableStyle([
-            ("BACKGROUND",(0,0),(-1,0),colors.HexColor("#6644ff")),
-            ("TEXTCOLOR",(0,0),(-1,0),colors.white),
-            ("FONTNAME",(0,0),(-1,0),"Helvetica-Bold"),
-            ("FONTSIZE",(0,0),(-1,-1),8),
-            ("TEXTCOLOR",(0,1),(-1,-1),colors.HexColor("#cccccc")),
-            ("ROWBACKGROUNDS",(0,1),(-1,-1),[colors.HexColor("#0d0b22"),colors.HexColor("#100e28")]),
-            ("GRID",(0,0),(-1,-1),0.3,colors.HexColor("#6644ff44")),
-            ("ALIGN",(2,0),(-1,-1),"CENTER"),
-            ("TOPPADDING",(0,0),(-1,-1),6),("BOTTOMPADDING",(0,0),(-1,-1),6),
-        ]))
-        story.append(tbl)
-    else:
-        story.append(Paragraph("No database records found for this session.", body_s))
-
-    story.append(Spacer(1, 0.8*cm))
-    story.append(HRFlowable(width="100%", thickness=0.5, color=colors.HexColor("#6644ff44"), spaceAfter=8))
-    story.append(Paragraph("Output Images", sec_s))
-
-    img_added = 0
-    for fname in filenames:
-        safe  = secure_filename(os.path.basename(fname))
-        fpath = os.path.join(OUTPUT_FOLDER, safe)
-        if os.path.exists(fpath):
-            try:
-                story.append(Paragraph(safe, body_s))
-                # Compress image before embedding
-                try:
-                    from PIL import Image as PILImage
-                    with PILImage.open(fpath) as pil_img:
-                        pil_img = pil_img.convert("RGB")
-                        # Resize to max 800px wide to reduce PDF size
-                        max_w = 800
-                        if pil_img.width > max_w:
-                            ratio = max_w / pil_img.width
-                            new_h = int(pil_img.height * ratio)
-                            pil_img = pil_img.resize((max_w, new_h), PILImage.LANCZOS)
-                        import tempfile, os as _os
-                        tmp = tempfile.NamedTemporaryFile(suffix=".jpg", delete=False)
-                        pil_img.save(tmp.name, "JPEG", quality=60, optimize=True)
-                        tmp.close()
-                        story.append(RLImage(tmp.name, width=16*cm, height=10*cm, kind="proportional"))
-                        _os.unlink(tmp.name)
-                except Exception:
-                    story.append(RLImage(fpath, width=16*cm, height=10*cm, kind="proportional"))
-                story.append(Spacer(1, 0.5*cm))
-                img_added += 1
-            except Exception:
-                pass
-
-    if img_added == 0:
-        story.append(Paragraph("Output images expired (48h limit) or not found.", body_s))
-
-    story.append(Spacer(1, 1*cm))
-    story.append(HRFlowable(width="100%", thickness=0.5, color=colors.HexColor("#6644ff44"), spaceAfter=8))
-    story.append(Paragraph("RAVEN - Detection that never blinks.", sub_s))
-
-    def dark_bg(canvas, doc):
-        canvas.saveState()
-        canvas.setFillColor(colors.HexColor("#07051a"))
-        canvas.rect(0, 0, A4[0], A4[1], fill=1, stroke=0)
-        canvas.restoreState()
-
-    doc.build(story, onFirstPage=dark_bg, onLaterPages=dark_bg)
-    buf.seek(0)
-    return send_file(buf, as_attachment=True,
-                     download_name="raven_report.pdf", mimetype="application/pdf")
-
 if __name__ == "__main__":
     init_db()
     app.run(debug=True)
+'''
+
+path = os.path.join("C:\\Users\\khech\\OAOD Project\\website", "app.py")
+with open(path, "w", encoding="utf-8") as f:
+    f.write(code)
+
+c = open(path, encoding="utf-8").read()
+print("Written:", len(c), "chars")
+print("HAS AUTH:", "login_required" in c)
+print("HAS FAIR1M:", "FAIR1M_MODEL" in c)
+print("HAS dota_fg:", "dota_fg" in c)
+print("HAS CLEANUP:", "cleanup_old_outputs" in c)
+print("HAS DOWNLOAD:", "download_file" in c)
