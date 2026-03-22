@@ -11,7 +11,7 @@ from datetime import datetime, timedelta
 from functools import wraps
 
 app = Flask(__name__)
-app.secret_key = "oaod_secret_key_change_in_production"
+app.secret_key = _os.environ.get("SECRET_KEY", "oaod_secret_key_change_in_production")
 
 UPLOAD_FOLDER = "static/uploads"
 OUTPUT_FOLDER = "static/outputs"
@@ -31,12 +31,13 @@ FAIR1M_CLASSES = [
 ]
 FINE_GRAINED_CONF = 0.01
 
+import os as _os
 DB_CONFIG = {
-    "host":     "bg0mwot4am56wljm4ims-mysql.services.clever-cloud.com",
-    "port":     3306,
-    "user":     "uky8zedsjiowpw7m",
-    "password": "wjLZKLUHi5GseDFcv7mL",
-    "database": "bg0mwot4am56wljm4ims",
+    "host":     _os.environ.get("DB_HOST", "bg0mwot4am56wljm4ims-mysql.services.clever-cloud.com"),
+    "port":     int(_os.environ.get("DB_PORT", 3306)),
+    "user":     _os.environ.get("DB_USER", "uky8zedsjiowpw7m"),
+    "password": _os.environ.get("DB_PASSWORD", "wjLZKLUHi5GseDFcv7mL"),
+    "database": _os.environ.get("DB_NAME", "bg0mwot4am56wljm4ims"),
     "connect_timeout": 10,
     "cursorclass": pymysql.cursors.DictCursor
 }
@@ -496,8 +497,8 @@ def send_suggestion():
     from email.mime.text import MIMEText
     from email.mime.multipart import MIMEMultipart
 
-    SMTP_USER     = "team.ravendetections@gmail.com"
-    SMTP_PASSWORD = "qpye xwcy ndfh pcbk"
+    SMTP_USER     = _os.environ.get("SMTP_USER", "team.ravendetections@gmail.com")
+    SMTP_PASSWORD = _os.environ.get("SMTP_PASSWORD", "qpye xwcy ndfh pcbk")
     TEAM_EMAIL    = "team.ravendetections@gmail.com"
 
     category     = request.form.get("category", "General")
