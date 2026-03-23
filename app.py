@@ -11,7 +11,7 @@ from datetime import datetime, timedelta
 from functools import wraps
 
 app = Flask(__name__)
-app.secret_key = _os.environ.get("SECRET_KEY", "oaod_secret_key_change_in_production")
+app.secret_key = os.environ.get("SECRET_KEY", "oaod_secret_key_change_in_production")
 
 UPLOAD_FOLDER = "static/uploads"
 OUTPUT_FOLDER = "static/outputs"
