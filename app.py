@@ -32,7 +32,13 @@ def get_model(name):
     return _MODELS[name]
 # FAIR1M model — optional, only loaded if file exists
 _fair1m_path = os.path.join(os.path.dirname(__file__), "models", "FAIR1M_Model.pt")
-FAIR1M_MODEL = YOLO(_fair1m_path) if os.path.exists(_fair1m_path) else None
+FAIR1M_MODEL = None  # loaded lazily on first use
+
+def get_fair1m_model():
+    global FAIR1M_MODEL
+    if FAIR1M_MODEL is None and os.path.exists(_fair1m_path):
+        FAIR1M_MODEL = YOLO(_fair1m_path)
+    return FAIR1M_MODEL
 
 DOTA_VEHICLE_CLASSES = {9, 10}
 FAIR1M_CLASSES = [
@@ -373,9 +379,8 @@ def detection():
                             continue
 
                         crop = img_array[y1:y2, x1:x2]
-                        if FAIR1M_MODEL is None: continue
-                        if FAIR1M_MODEL is None: continue
-                        fg_results = FAIR1M_MODEL(crop, verbose=False, conf=0.01)
+                        if get_fair1m_model() is None: continue
+                        fg_results = get_fair1m_model()(crop, verbose=False, conf=0.01)
                         fg_result  = fg_results[0]
 
                         if fg_result.obb is not None and len(fg_result.obb) > 0:
