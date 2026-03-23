@@ -365,6 +365,8 @@ def detection():
                             continue
 
                         crop = img_array[y1:y2, x1:x2]
+                        if FAIR1M_MODEL is None: continue
+                        if FAIR1M_MODEL is None: continue
                         fg_results = FAIR1M_MODEL(crop, verbose=False, conf=0.01)
                         fg_result  = fg_results[0]
 
