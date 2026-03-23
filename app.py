@@ -675,7 +675,7 @@ def download_report_pdf():
                             ratio = max_w / pil_img.width
                             new_h = int(pil_img.height * ratio)
                             pil_img = pil_img.resize((max_w, new_h), PILImage.LANCZOS)
-                        import tempfile, os as _os
+                        import tempfile
                         tmp = tempfile.NamedTemporaryFile(suffix=".jpg", delete=False)
                         pil_img.save(tmp.name, "JPEG", quality=60, optimize=True)
                         tmp.close()
