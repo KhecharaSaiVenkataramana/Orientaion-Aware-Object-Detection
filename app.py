@@ -18,9 +18,18 @@ OUTPUT_FOLDER = "static/outputs"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 
-STANDARD_MODEL = YOLO("models/yolov8n.pt")
-DOTA_MODEL     = YOLO("models/DOTA_Model.pt")
-HRSC_MODEL     = YOLO("models/HRSC_Model.pt")
+# Models loaded lazily on first use to avoid startup timeout
+_MODELS = {}
+
+def get_model(name):
+    if name not in _MODELS:
+        paths = {
+            "standard": "models/yolov8n.pt",
+            "dota":     "models/DOTA_Model.pt",
+            "hrsc":     "models/HRSC_Model.pt",
+        }
+        _MODELS[name] = YOLO(paths[name])
+    return _MODELS[name]
 # FAIR1M model — optional, only loaded if file exists
 _fair1m_path = os.path.join(os.path.dirname(__file__), "models", "FAIR1M_Model.pt")
 FAIR1M_MODEL = YOLO(_fair1m_path) if os.path.exists(_fair1m_path) else None
@@ -298,13 +307,13 @@ def detection():
         conf  = float(request.form.get("conf", 0.25))
 
         if mode == "dota":
-            model, model_name = DOTA_MODEL, "DOTA-OBB"
+            model, model_name = get_model("dota"), "DOTA-OBB"
         elif mode == "hrsc":
-            model, model_name = HRSC_MODEL, "HRSC-OBB"
+            model, model_name = get_model("hrsc"), "HRSC-OBB"
         elif mode == "dota_fg":
-            model, model_name = DOTA_MODEL, "DOTA-Fine-grained"
+            model, model_name = get_model("dota"), "DOTA-Fine-grained"
         else:
-            model, model_name = STANDARD_MODEL, "Standard YOLOv8"
+            model, model_name = get_model("standard"), "Standard YOLOv8"
 
         for file in files:
             if file and file.filename != "":
