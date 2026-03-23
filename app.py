@@ -21,7 +21,9 @@ os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 STANDARD_MODEL = YOLO("models/yolov8n.pt")
 DOTA_MODEL     = YOLO("models/DOTA_Model.pt")
 HRSC_MODEL     = YOLO("models/HRSC_Model.pt")
-FAIR1M_MODEL   = YOLO(r"C:\Users\khech\OAOD Project\runs\obb\FAIR1M_Vehicle_Model_v4\weights\best.pt")
+# FAIR1M model — optional, only loaded if file exists
+_fair1m_path = os.path.join(os.path.dirname(__file__), "models", "FAIR1M_Model.pt")
+FAIR1M_MODEL = YOLO(_fair1m_path) if os.path.exists(_fair1m_path) else None
 
 DOTA_VEHICLE_CLASSES = {9, 10}
 FAIR1M_CLASSES = [
