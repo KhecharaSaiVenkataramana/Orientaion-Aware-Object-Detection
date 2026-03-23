@@ -42,7 +42,6 @@ FAIR1M_CLASSES = [
 ]
 FINE_GRAINED_CONF = 0.01
 
-import os as _os
 DB_CONFIG = {
     "host":     os.environ.get("DB_HOST", "bg0mwot4am56wljm4ims-mysql.services.clever-cloud.com"),
     "port":     int(os.environ.get("DB_PORT", 3306)),
