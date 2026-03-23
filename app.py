@@ -35,11 +35,11 @@ FINE_GRAINED_CONF = 0.01
 
 import os as _os
 DB_CONFIG = {
-    "host":     _os.environ.get("DB_HOST", "bg0mwot4am56wljm4ims-mysql.services.clever-cloud.com"),
-    "port":     int(_os.environ.get("DB_PORT", 3306)),
-    "user":     _os.environ.get("DB_USER", "uky8zedsjiowpw7m"),
-    "password": _os.environ.get("DB_PASSWORD", "wjLZKLUHi5GseDFcv7mL"),
-    "database": _os.environ.get("DB_NAME", "bg0mwot4am56wljm4ims"),
+    "host":     os.environ.get("DB_HOST", "bg0mwot4am56wljm4ims-mysql.services.clever-cloud.com"),
+    "port":     int(os.environ.get("DB_PORT", 3306)),
+    "user":     os.environ.get("DB_USER", "uky8zedsjiowpw7m"),
+    "password": os.environ.get("DB_PASSWORD", "wjLZKLUHi5GseDFcv7mL"),
+    "database": os.environ.get("DB_NAME", "bg0mwot4am56wljm4ims"),
     "connect_timeout": 10,
     "cursorclass": pymysql.cursors.DictCursor
 }
@@ -501,8 +501,8 @@ def send_suggestion():
     from email.mime.text import MIMEText
     from email.mime.multipart import MIMEMultipart
 
-    SMTP_USER     = _os.environ.get("SMTP_USER", "team.ravendetections@gmail.com")
-    SMTP_PASSWORD = _os.environ.get("SMTP_PASSWORD", "qpye xwcy ndfh pcbk")
+    SMTP_USER     = os.environ.get("SMTP_USER", "team.ravendetections@gmail.com")
+    SMTP_PASSWORD = os.environ.get("SMTP_PASSWORD", "qpye xwcy ndfh pcbk")
     TEAM_EMAIL    = "team.ravendetections@gmail.com"
 
     category     = request.form.get("category", "General")
@@ -671,7 +671,7 @@ def download_report_pdf():
                         pil_img.save(tmp.name, "JPEG", quality=60, optimize=True)
                         tmp.close()
                         story.append(RLImage(tmp.name, width=16*cm, height=10*cm, kind="proportional"))
-                        _os.unlink(tmp.name)
+                        os.unlink(tmp.name)
                 except Exception:
                     story.append(RLImage(fpath, width=16*cm, height=10*cm, kind="proportional"))
                 story.append(Spacer(1, 0.5*cm))
